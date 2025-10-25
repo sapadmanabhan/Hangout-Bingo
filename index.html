@@ -427,10 +427,8 @@
                 bingoBoard.innerHTML = '';
                 bingoBoard.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
                 
-                // Select random activities for the board
+                // Use activities in fixed order (no shuffling)
                 const selectedActivities = [...activities];
-                // Shuffle and pick the needed number
-                selectedActivities.sort(() => Math.random() - 0.5);
                 
                 for (let i = 0; i < boardSize * boardSize; i++) {
                     const cell = document.createElement('div');
@@ -438,7 +436,7 @@
                     cell.dataset.index = i;
                     
                     const activityText = document.createElement('div');
-                    activityText.textContent = selectedActivities[i]; // Removed free space check
+                    activityText.textContent = selectedActivities[i];
                     
                     cell.appendChild(activityText);
                     
@@ -465,7 +463,7 @@
                 if (boardState[index].completed) {
                     // If already completed, uncomplete it
                     const person = boardState[index].person;
-                    if (person) { // Removed "Free Space" check
+                    if (person) {
                         personUsage[person] = (personUsage[person] || 1) - 1;
                         if (personUsage[person] === 0) {
                             delete personUsage[person];
@@ -505,7 +503,7 @@
                 
                 const uniquePeople = new Set();
                 boardState.forEach(cell => {
-                    if (cell.person) { // Removed "Free Space" check
+                    if (cell.person) {
                         uniquePeople.add(cell.person);
                     }
                 });
@@ -530,7 +528,7 @@
                             complete = false;
                             break;
                         }
-                        if (boardState[index].person) { // Removed "Free Space" check
+                        if (boardState[index].person) {
                             peopleInRow.add(boardState[index].person);
                         }
                     }
@@ -552,7 +550,7 @@
                             complete = false;
                             break;
                         }
-                        if (boardState[index].person) { // Removed "Free Space" check
+                        if (boardState[index].person) {
                             peopleInCol.add(boardState[index].person);
                         }
                     }
@@ -572,7 +570,7 @@
                         mainDiagonalComplete = false;
                         break;
                     }
-                    if (boardState[index].person) { // Removed "Free Space" check
+                    if (boardState[index].person) {
                         peopleInMainDiag.add(boardState[index].person);
                     }
                 }
@@ -589,7 +587,7 @@
                         antiDiagonalComplete = false;
                         break;
                     }
-                    if (boardState[index].person) { // Removed "Free Space" check
+                    if (boardState[index].person) {
                         peopleInAntiDiag.add(boardState[index].person);
                     }
                 }
@@ -607,10 +605,10 @@
                     
                     if (isBoardComplete()) { // Check for full board first
                         message = "Incredible! You've completed the entire board!";
-                        details = "You can pie bucket anyone on the team!"; // Changed
+                        details = "You can pie bucket anyone on the team!";
                     } else if (completedLines.length === 2) {
                         message = "Amazing! You've completed two lines!";
-                        details = "You can ice bucket anyone on the team!"; // Changed
+                        details = "You can ice bucket anyone on the team!";
                     } else if (completedLines.length === 1) {
                         message = "Congratulations! You've completed a line!";
                         details = "You've earned bragging rights!";
@@ -709,8 +707,6 @@
                     boardState = Array(boardSize * boardSize).fill(null).map(() => ({ completed: false, person: '' }));
                     completedLines = [];
                     personUsage = {};
-                    
-                    // Removed free space reset logic
                     
                     saveGameState();
                     initializeBoard();
