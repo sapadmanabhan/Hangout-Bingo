@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangout Bingo Board</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #8A2BE2 0%, #4B0082 50%, #0000CD 100%);
+            color: white;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .user-section {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+        
+        .user-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        input[type="text"] {
+            padding: 12px 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #9370DB;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #9370DB, #8A2BE2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(to right, #8A2BE2, #9370DB);
+        }
+        
+        .content {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .board-container {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Changed to 4 columns */
+            gap: 12px;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        
+        .bingo-cell {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bingo-cell:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .bingo-cell.completed {
+            background: linear-gradient(135deg, #32CD32, #228B22);
+            border-color: #32CD32;
+            color: white;
+        }
+        
+        .bingo-cell.completed::after {
+            content: "✓";
+            font-size: 1.8rem;
+            color: white;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+        
+        .person-name {
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        
+        .info-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .instructions, .rules, .prizes {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        
+        .section-title {
+            color: #FFD700;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        .instructions ul, .rules ul, .prizes ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li, .rules li, .prizes li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .winning-line {
+            background: linear-gradient(135deg, #FFD700, #FFA500) !important;
+            border-color: #FFD700 !important;
+            color: #333;
+        }
+        
+        .prize-section {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            display: none;
+            backdrop-filter: blur(10px);
+            border: 2px solid #FFD700;
+        }
+        
+        .prize-section.active {
+            display: block;
+            animation: celebrate 1s ease-in-out;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .prize-message {
+            font-size: 1.8rem;
+            color: #FFD700;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .reset-btn {
+            background: linear-gradient(to right, #FF4500, #FF6347);
+            margin-top: 15px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 120px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .bingo-board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            input[type="text"] {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .bingo-board {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-input {
+                flex-direction: column;
+            }
+        }
+        
+        /* Removed .free-space style as it's no longer needed */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hangout Bingo Board</h1>
+            <p class="subtitle">Complete fun activities with friends and win awesome prizes!</p>
+        </header>
+        
+        <div class="user-section">
+            <h2>Enter Your Username</h2>
+            <p>Your progress will be saved to your browser's local storage</p>
+            <div class="user-input">
+                <input type="text" id="username" placeholder="Enter your username">
+                <button id="save-user">Save Username</button>
+            </div>
+            <p id="user-display" style="margin-top: 10px;"></p>
+        </div>
+        
+        <div class="content">
+            <div class="board-container">
+                <h2 class="section-title">Your Hangout Bingo Board</h2>
+                <div class="bingo-board" id="bingo-board">
+                    </div>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="completed-count">0</div>
+                        <div>Completed</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="rows-completed">0</div>
+                        <div>Lines Completed</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="person-count">0</div>
+                        <div>People</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <div class="instructions">
+                    <h2 class="section-title">How to Play</h2>
+                    <ul>
+                        <li>Click on any activity square to mark it as completed</li>
+                        <li>Enter the name of the person you did the activity with</li>
+                        <li>The same person can only be used <strong>twice</strong> on the entire board</li>
+                        <li>Complete any row, column, or diagonal to win prizes!</li>
+                        <li>Your progress is saved automatically to your browser</li>
+                    </ul>
+                </div>
+                
+                <div class="rules">
+                    <h2 class="section-title">Rules</h2>
+                    <ul>
+                        <li>Each person can only appear in <strong>two</strong> activities maximum</li>
+                        <li>Completed rows/columns/diagonals must have different people</li>
+                        </ul>
+                </div>
+                
+                <div class="prizes">
+                    <h2 class="section-title">Prizes</h2>
+                    <ul>
+                        <li><strong>Complete 1 row/column/diagonal:</strong> Bragging rights!</li>
+                        <li><strong>Complete 2 rows/columns/diagonals:</strong> You can ice bucket anyone on the team!</li> <li><strong>Complete the entire board:</strong> You can pie bucket anyone on the team!</li> <li><strong>First to Blackout:</strong> The first person to black out the board will get a boba from the Internal!!</li> </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="prize-section" id="prize-section">
+            <div class="prize-message" id="prize-message">Congratulations! You've completed a line!</div>
+            <p id="prize-details">You've earned bragging rights!</p>
+            <button class="reset-btn" id="reset-btn">Reset Board</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Activities for the bingo board (4x4 grid)
+            const activities = [
+                "Cook something new",
+                "Watch the sunset/sunrise",
+                "Try an off campus restaurant",
+                "Board game night",
+                "Gym session",
+                "Learn or create a choreo",
+                "Play a sport",
+                "Hit a step goal!! (min: 10k steps)",
+                "Study session",
+                "Bake something new",
+                "Read/Journal",
+                "Picnic!!",
+                "Tour blue house @Warren",
+                "Try an off campus restaurant", // As requested
+                "Hike!!",
+                "Craft day"
+            ];
+            
+            // DOM elements
+            const bingoBoard = document.getElementById('bingo-board');
+            const usernameInput = document.getElementById('username');
+            const saveUserBtn = document.getElementById('save-user');
+            const userDisplay = document.getElementById('user-display');
+            const prizeSection = document.getElementById('prize-section');
+            const prizeMessage = document.getElementById('prize-message');
+            const prizeDetails = document.getElementById('prize-details');
+            const resetBtn = document.getElementById('reset-btn');
+            const completedCount = document.getElementById('completed-count');
+            const rowsCompleted = document.getElementById('rows-completed');
+            const personCount = document.getElementById('person-count');
+            
+            // Game state
+            let currentUser = '';
+            let boardSize = 4; // 4x4 grid
+            let boardState = Array(boardSize * boardSize).fill(null).map(() => ({ completed: false, person: '' }));
+            let completedLines = [];
+            let personUsage = {}; // Track how many times each person is used
+            
+            // Removed free space logic
+            
+            // Initialize the board
+            function initializeBoard() {
+                bingoBoard.innerHTML = '';
+                bingoBoard.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
+                
+                // Select random activities for the board
+                const selectedActivities = [...activities];
+                // Shuffle and pick the needed number
+                selectedActivities.sort(() => Math.random() - 0.5);
+                
+                for (let i = 0; i < boardSize * boardSize; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'bingo-cell';
+                    cell.dataset.index = i;
+                    
+                    const activityText = document.createElement('div');
+                    activityText.textContent = selectedActivities[i]; // Removed free space check
+                    
+                    cell.appendChild(activityText);
+                    
+                    if (boardState[i].completed) {
+                        cell.classList.add('completed');
+                        const personName = document.createElement('div');
+                        personName.className = 'person-name';
+                        personName.textContent = boardState[i].person;
+                        cell.appendChild(personName);
+                    }
+                    
+                    // Add event listener to all cells
+                    cell.addEventListener('click', () => toggleCell(i));
+                    
+                    bingoBoard.appendChild(cell);
+                }
+                
+                updateStats();
+                checkForWinningLines();
+            }
+            
+            // Toggle cell completion
+            function toggleCell(index) {
+                if (boardState[index].completed) {
+                    // If already completed, uncomplete it
+                    const person = boardState[index].person;
+                    if (person) { // Removed "Free Space" check
+                        personUsage[person] = (personUsage[person] || 1) - 1;
+                        if (personUsage[person] === 0) {
+                            delete personUsage[person];
+                        }
+                    }
+                    
+                    boardState[index].completed = false;
+                    boardState[index].person = '';
+                } else {
+                    // If not completed, prompt for person's name
+                    const person = prompt(`Who did you do "${activities[index]}" with?`);
+                    if (person && person.trim() !== '') {
+                        const trimmedPerson = person.trim();
+                        
+                        // Check if person is already used twice
+                        if ((personUsage[trimmedPerson] || 0) >= 2) {
+                            alert(`You've already used ${trimmedPerson} twice! Please choose someone else.`);
+                            return;
+                        }
+                        
+                        boardState[index].completed = true;
+                        boardState[index].person = trimmedPerson;
+                        personUsage[trimmedPerson] = (personUsage[trimmedPerson] || 0) + 1;
+                    } else {
+                        return;
+                    }
+                }
+                
+                saveGameState();
+                initializeBoard();
+            }
+            
+            // Update statistics
+            function updateStats() {
+                const completed = boardState.filter(cell => cell.completed).length;
+                completedCount.textContent = completed;
+                
+                const uniquePeople = new Set();
+                boardState.forEach(cell => {
+                    if (cell.person) { // Removed "Free Space" check
+                        uniquePeople.add(cell.person);
+                    }
+                });
+                personCount.textContent = uniquePeople.size;
+                
+                // Count completed rows/columns/diagonals
+                rowsCompleted.textContent = completedLines.length;
+            }
+            
+            // Check for winning lines
+            function checkForWinningLines() {
+                completedLines = [];
+                
+                // Check rows
+                for (let row = 0; row < boardSize; row++) {
+                    let complete = true;
+                    const peopleInRow = new Set();
+                    
+                    for (let col = 0; col < boardSize; col++) {
+                        const index = row * boardSize + col;
+                        if (!boardState[index].completed) {
+                            complete = false;
+                            break;
+                        }
+                        if (boardState[index].person) { // Removed "Free Space" check
+                            peopleInRow.add(boardState[index].person);
+                        }
+                    }
+                    
+                    // Check if all people in the row are different
+                    if (complete && peopleInRow.size === boardSize) {
+                        completedLines.push({ type: 'row', index: row });
+                    }
+                }
+                
+                // Check columns
+                for (let col = 0; col < boardSize; col++) {
+                    let complete = true;
+                    const peopleInCol = new Set();
+                    
+                    for (let row = 0; row < boardSize; row++) {
+                        const index = row * boardSize + col;
+                        if (!boardState[index].completed) {
+                            complete = false;
+                            break;
+                        }
+                        if (boardState[index].person) { // Removed "Free Space" check
+                            peopleInCol.add(boardState[index].person);
+                        }
+                    }
+                    
+                    // Check if all people in the column are different
+                    if (complete && peopleInCol.size === boardSize) {
+                        completedLines.push({ type: 'column', index: col });
+                    }
+                }
+                
+                // Check main diagonal
+                let mainDiagonalComplete = true;
+                const peopleInMainDiag = new Set();
+                for (let i = 0; i < boardSize; i++) {
+                    const index = i * boardSize + i;
+                    if (!boardState[index].completed) {
+                        mainDiagonalComplete = false;
+                        break;
+                    }
+                    if (boardState[index].person) { // Removed "Free Space" check
+                        peopleInMainDiag.add(boardState[index].person);
+                    }
+                }
+                if (mainDiagonalComplete && peopleInMainDiag.size === boardSize) {
+                    completedLines.push({ type: 'diagonal', index: 0 });
+                }
+                
+                // Check anti-diagonal
+                let antiDiagonalComplete = true;
+                const peopleInAntiDiag = new Set();
+                for (let i = 0; i < boardSize; i++) {
+                    const index = i * boardSize + (boardSize - 1 - i);
+                    if (!boardState[index].completed) {
+                        antiDiagonalComplete = false;
+                        break;
+                    }
+                    if (boardState[index].person) { // Removed "Free Space" check
+                        peopleInAntiDiag.add(boardState[index].person);
+                    }
+                }
+                if (antiDiagonalComplete && peopleInAntiDiag.size === boardSize) {
+                    completedLines.push({ type: 'diagonal', index: 1 });
+                }
+                
+                // Highlight winning lines
+                highlightWinningLines();
+                
+                // Show prize section if there are completed lines
+                if (completedLines.length > 0) {
+                    let message = "";
+                    let details = "";
+                    
+                    if (isBoardComplete()) { // Check for full board first
+                        message = "Incredible! You've completed the entire board!";
+                        details = "You can pie bucket anyone on the team!"; // Changed
+                    } else if (completedLines.length === 2) {
+                        message = "Amazing! You've completed two lines!";
+                        details = "You can ice bucket anyone on the team!"; // Changed
+                    } else if (completedLines.length === 1) {
+                        message = "Congratulations! You've completed a line!";
+                        details = "You've earned bragging rights!";
+                    } else {
+                        message = `Great job! You've completed ${completedLines.length} lines!`;
+                        details = "Keep going for more prizes!";
+                    }
+                    
+                    prizeMessage.textContent = message;
+                    prizeDetails.textContent = details;
+                    prizeSection.classList.add('active');
+                } else {
+                    prizeSection.classList.remove('active');
+                }
+                
+                updateStats();
+            }
+            
+            // Check if the entire board is completed
+            function isBoardComplete() {
+                return boardState.every(cell => cell.completed);
+            }
+            
+            // Highlight winning lines
+            function highlightWinningLines() {
+                // Remove previous highlights
+                document.querySelectorAll('.bingo-cell').forEach(cell => {
+                    cell.classList.remove('winning-line');
+                });
+                
+                // Add highlights for completed lines
+                completedLines.forEach(line => {
+                    if (line.type === 'row') {
+                        for (let col = 0; col < boardSize; col++) {
+                            const index = line.index * boardSize + col;
+                            document.querySelector(`.bingo-cell[data-index="${index}"]`).classList.add('winning-line');
+                        }
+                    } else if (line.type === 'column') {
+                        for (let row = 0; row < boardSize; row++) {
+                            const index = row * boardSize + line.index;
+                            document.querySelector(`.bingo-cell[data-index="${index}"]`).classList.add('winning-line');
+                        }
+                    } else if (line.type === 'diagonal') {
+                        if (line.index === 0) {
+                            // Main diagonal
+                            for (let i = 0; i < boardSize; i++) {
+                                const index = i * boardSize + i;
+                                document.querySelector(`.bingo-cell[data-index="${index}"]`).classList.add('winning-line');
+                            }
+                        } else {
+                            // Anti-diagonal
+                            for (let i = 0; i < boardSize; i++) {
+                                const index = i * boardSize + (boardSize - 1 - i);
+                                document.querySelector(`.bingo-cell[data-index="${index}"]`).classList.add('winning-line');
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Save game state to localStorage
+            function saveGameState() {
+                if (currentUser) {
+                    const gameData = {
+                        boardState: boardState,
+                        completedLines: completedLines,
+                        personUsage: personUsage
+                    };
+                    localStorage.setItem(`hangoutBingo_${currentUser}`, JSON.stringify(gameData));
+                }
+            }
+            
+            // Load game state from localStorage
+            function loadGameState() {
+                if (currentUser) {
+                    const savedData = localStorage.getItem(`hangoutBingo_${currentUser}`);
+                    if (savedData) {
+                        const gameData = JSON.parse(savedData);
+                        // Check if saved board size matches current board size
+                        if (gameData.boardState.length === boardSize * boardSize) {
+                            boardState = gameData.boardState;
+                            completedLines = gameData.completedLines;
+                            personUsage = gameData.personUsage || {};
+                        } else {
+                            // If board size mismatch, reset
+                            resetBoard(true); // Pass true to skip confirmation
+                        }
+                    }
+                    initializeBoard();
+                }
+            }
+            
+            // Reset the board
+            function resetBoard(skipConfirm = false) {
+                if (skipConfirm || confirm("Are you sure you want to reset the board? All progress will be lost.")) {
+                    boardState = Array(boardSize * boardSize).fill(null).map(() => ({ completed: false, person: '' }));
+                    completedLines = [];
+                    personUsage = {};
+                    
+                    // Removed free space reset logic
+                    
+                    saveGameState();
+                    initializeBoard();
+                    prizeSection.classList.remove('active');
+                }
+            }
+            
+            // Event listeners
+            saveUserBtn.addEventListener('click', function() {
+                const username = usernameInput.value.trim();
+                if (username) {
+                    currentUser = username;
+                    userDisplay.textContent = `Welcome, ${username}! Your board is ready.`;
+                    usernameInput.value = '';
+                    loadGameState();
+                } else {
+                    alert('Please enter a username');
+                }
+            });
+            
+            resetBtn.addEventListener('click', () => resetBoard(false));
+            
+            // Initialize with a default user if none is set
+            const defaultUser = 'default_user';
+            currentUser = defaultUser;
+            userDisplay.textContent = `Welcome! Using default user. Enter a username to personalize your experience.`;
+            loadGameState();
+        });
+    </script>
+</body>
+</html>
